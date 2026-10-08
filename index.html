@@ -2,13 +2,29 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Ruim</title>
+    <title>Calculadora</title>
 </head>
 <body>
     <h1>Calculadora</h1>
-    <p>Abra o console do navegador (F12) para ver os resultados.</p>
     
+    <input type="number" id="num1" placeholder="1º Número">
+    
+    <select id="operacao">
+        <option value="1">Soma (+)</option>
+        <option value="2">Subtração (-)</option>
+        <option value="3">Multiplicação (*)</option>
+        <option value="4">Divisão (/)</option>
+    </select>
+
+    <input type="number" id="num2" placeholder="2º Número">
+    
+    <button onclick="calcular()">Calcular</button>
+
+    <h2>Resultado: <span id="resultado">...</span></h2>
+
+    <h3>Histórico de Cálculos:</h3>
+    <ul id="historico"></ul>
+
     <script src="calculadora.js"></script>
 </body>
 </html>
