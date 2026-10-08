@@ -1,4 +1,4 @@
-// 1. Funções matemáticas isoladas (O objetivo principal da refatoração)
+// 1. Funções matemáticas isoladas
 function somar(a, b) { return a + b; }
 function subtrair(a, b) { return a - b; }
 function multiplicar(a, b) { return a * b; }
@@ -13,31 +13,40 @@ function calcular() {
     let num2 = parseFloat(document.getElementById("num2").value);
     let opcao = document.getElementById("operacao").value;
     let resultado;
+    let simbolo;
 
-    // Validação simples
     if (isNaN(num1) || isNaN(num2)) {
         alert("Por favor, digite os dois números!");
         return;
     }
 
-    // 3. O Switch-case que você pediu, apenas chamando as funções
     switch (opcao) {
         case '1':
             resultado = somar(num1, num2);
+            simbolo = '+';
             break;
         case '2':
             resultado = subtrair(num1, num2);
+            simbolo = '-';
             break;
         case '3':
             resultado = multiplicar(num1, num2);
+            simbolo = '*';
             break;
         case '4':
             resultado = dividir(num1, num2);
+            simbolo = '/';
             break;
         default:
             resultado = "Operação inválida";
+            simbolo = '?';
     }
 
-    // Exibe o resultado na tela
     document.getElementById("resultado").innerText = resultado;
+
+    // Adiciona ao Histórico
+    let listaHistorico = document.getElementById("historico");
+    let novoItem = document.createElement("li");
+    novoItem.innerText = `${num1} ${simbolo} ${num2} = ${resultado}`;
+    listaHistorico.appendChild(novoItem);
 }
