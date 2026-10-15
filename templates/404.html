@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Página Não Encontrada - 404{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center text-center my-5">
+    <div class="col-md-6">
+        <div class="card p-5">
+            <h1 class="display-1 fw-bold text-danger">404</h1>
+            <h3 class="fw-bold mb-3">Recurso ou Página Não Encontrada</h3>
+            <p class="text-muted mb-4">
+                O item ou a URL que você tentou acessar não foi encontrada no sistema. 
+                Este evento foi capturado e registrado no painel do Sentry.
+            </p>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="bi bi-house-door me-1"></i> Voltar ao Painel Principal
+                </a>
+                <a href="{{ url_for('listar_equipamentos') }}" class="btn btn-outline-secondary ms-2">
+                    Ver Equipamentos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

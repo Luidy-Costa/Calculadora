@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Empréstimos - Emprestados{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 fw-bold mb-1">Registro de Empréstimos</h2>
+        <p class="text-muted mb-0">Gerencie as retiradas e devoluções de ativos de TI.</p>
+    </div>
+    <a href="{{ url_for('novo_emprestimo') }}" class="btn btn-primary">
+        <i class="bi bi-box-arrow-right"></i> Novo Empréstimo
+    </a>
+</div>
+
+<!-- Filtros Rápidos -->
+<div class="card p-3 mb-4">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="fw-semibold text-muted small me-2"><i class="bi bi-funnel"></i> Exibir:</span>
+        <a href="{{ url_for('listar_emprestimos', status='ativo') }}" class="btn btn-sm {% if status_filter == 'ativo' %}btn-warning text-dark{% else %}btn-outline-secondary{% endif %}">Ativos (Em Aberto)</a>
+        <a href="{{ url_for('listar_emprestimos', status='devolvido') }}" class="btn btn-sm {% if status_filter == 'devolvido' %}btn-success{% else %}btn-outline-secondary{% endif %}">Devolvidos</a>
+        <a href="{{ url_for('listar_emprestimos', status='todos') }}" class="btn btn-sm {% if status_filter == 'todos' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Todos</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Equipamento</th>
+                    <th>Responsável</th>
+                    <th>Data Empréstimo</th>
+                    <th>Previsão Devolução</th>
+                    <th>Status</th>
+                    <th class="text-end">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in emprestimos %}
+                <tr>
+                    <td>#{{ emp.id }}</td>
+                    <td>
+                        <a href="{{ url_for('detalhe_equipamento', id=emp.equipamento.id) }}" class="fw-bold text-decoration-none">
+                            {{ emp.equipamento.patrimonio }}
+                        </a>
+                        <br>
+                        <small class="text-muted">{{ emp.equipamento.tipo }} - {{ emp.equipamento.marca_modelo }}</small>
+                    </td>
+                    <td>
+                        <strong>{{ emp.responsavel_nome }}</strong><br>
+                        <small class="text-muted">{{ emp.responsavel_contato or 'Sem contato' }}</small>
+                    </td>
+                    <td>{{ emp.data_emprestimo.strftime('%d/%m/%Y às %H:%M') }}</td>
+                    <td>
+                        {% if emp.status == 'ativo' %}
+                            {% if emp.data_prevista_devolucao %}
+                                {{ emp.data_prevista_devolucao.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                <span class="text-muted small">Não definida</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-success small">Devolvido em:<br>{{ emp.data_devolucao.strftime('%d/%m/%Y %H:%M') if emp.data_devolucao else '-' }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if emp.status == 'ativo' %}
+                            <span class="badge bg-warning text-dark">Em Aberto</span>
+                        {% else %}
+                            <span class="badge bg-success">Devolvido</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if emp.status == 'ativo' %}
+                            <form action="{{ url_for('devolver_emprestimo', id=emp.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check2-circle"></i> Registrar Devolução
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted small"><i class="bi bi-check-all text-success"></i> Finalizado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        Nenhum registro de empréstimo encontrado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

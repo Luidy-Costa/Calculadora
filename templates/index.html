@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Emprestados{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <h2 class="h4 fw-bold">Painel de Controle</h2>
+        <p class="text-muted">Acompanhe a disponibilidade e movimentação dos equipamentos de TI.</p>
+    </div>
+
+    <!-- Cards de Indicadores -->
+    <div class="col-md-3 col-sm-6">
+        <div class="card p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Total de Itens</span>
+                    <h3 class="fw-bold mt-1 mb-0">{{ total }}</h3>
+                </div>
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+                    <i class="bi bi-hdd-stack fs-4"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('listar_equipamentos') }}" class="small text-decoration-none mt-2 d-inline-block">Ver todos &rarr;</a>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Disponíveis</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-success">{{ disponiveis }}</h3>
+                </div>
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
+                    <i class="bi bi-check-circle fs-4"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('listar_equipamentos', status='disponivel') }}" class="small text-success text-decoration-none mt-2 d-inline-block">Filtrar disponíveis &rarr;</a>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Emprestados</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-info">{{ emprestados }}</h3>
+                </div>
+                <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
+                    <i class="bi bi-person-badge fs-4"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('listar_equipamentos', status='emprestado') }}" class="small text-info text-decoration-none mt-2 d-inline-block">Filtrar emprestados &rarr;</a>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Em Manutenção</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-danger">{{ manutencao }}</h3>
+                </div>
+                <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle">
+                    <i class="bi bi-tools fs-4"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('listar_equipamentos', status='manutencao') }}" class="small text-danger text-decoration-none mt-2 d-inline-block">Filtrar manutenção &rarr;</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Últimos Empréstimos -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 fw-bold">Últimos Empréstimos</h5>
+                <a href="{{ url_for('listar_emprestimos') }}" class="btn btn-sm btn-outline-primary">Ver histórico completo</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patrimônio / Item</th>
+                                <th>Responsável</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th class="text-end">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in ultimos_emprestimos %}
+                            <tr>
+                                <td>
+                                    <strong>{{ emp.equipamento.patrimonio }}</strong><br>
+                                    <small class="text-muted">{{ emp.equipamento.tipo }} ({{ emp.equipamento.marca_modelo }})</small>
+                                </td>
+                                <td>
+                                    {{ emp.responsavel_nome }}<br>
+                                    <small class="text-muted">{{ emp.responsavel_contato or 'Sem contato' }}</small>
+                                </td>
+                                <td>{{ emp.data_emprestimo.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    {% if emp.status == 'ativo' %}
+                                        <span class="badge bg-warning text-dark">Ativo</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Devolvido</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if emp.status == 'ativo' %}
+                                        <form action="{{ url_for('devolver_emprestimo', id=emp.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Devolver</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted small">{{ emp.data_devolucao.strftime('%d/%m/%Y') if emp.data_devolucao else '-' }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    Nenhum empréstimo registrado ainda.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipamentos Recentes / Ações Rápidas -->
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 fw-bold">Cadastrados Recentemente</h5>
+                <a href="{{ url_for('novo_equipamento') }}" class="btn btn-sm btn-outline-primary">+ Novo</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for item in equipamentos_recentes %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <strong>{{ item.patrimonio }}</strong> - {{ item.tipo }}<br>
+                            <small class="text-muted">{{ item.marca_modelo }}</small>
+                        </div>
+                        <div class="text-end">
+                            {% if item.status == 'disponivel' %}
+                                <span class="badge badge-status-disponivel border border-success">Disponível</span>
+                            {% elif item.status == 'emprestado' %}
+                                <span class="badge badge-status-emprestado border border-info">Emprestado</span>
+                            {% else %}
+                                <span class="badge badge-status-manutencao border border-danger">Manutenção</span>
+                            {% endif %}
+                            <br>
+                            <a href="{{ url_for('detalhe_equipamento', id=item.id) }}" class="small text-decoration-none">Ver detalhes</a>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-center py-4 text-muted">
+                        Nenhum equipamento cadastrado ainda.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
