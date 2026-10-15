@@ -7,5 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "@sentry/browser": "^11.6.0",
+    "@sentry/node": "^11.8.0",
+    "@sentry/profiling-node": "^11.8.0"
+  }
 }
