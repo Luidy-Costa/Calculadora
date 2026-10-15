@@ -1,3 +1,7 @@
+Sentry.init({
+  dsn: "https://5b8b2747fef1ec172cfa5f1d0d41b4aa@o4512222937415680.ingest.us.sentry.io/4512261893521408", 
+  tracesSampleRate: 1.0
+});
 // 1. Funções matemáticas isoladas
 function somar(a, b) { return a + b; }
 function subtrair(a, b) { return a - b; }
@@ -50,3 +54,4 @@ function calcular() {
     novoItem.innerText = `${num1} ${simbolo} ${num2} = ${resultado}`;
     listaHistorico.appendChild(novoItem);
 }
+myUndefinedFunction();
