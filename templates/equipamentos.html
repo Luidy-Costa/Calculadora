@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipamentos - Emprestados{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 fw-bold mb-1">Equipamentos Cadastrados</h2>
+        <p class="text-muted mb-0">Controle de notebooks, monitores, periféricos e outros ativos.</p>
+    </div>
+    <a href="{{ url_for('novo_equipamento') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Novo Equipamento
+    </a>
+</div>
+
+<!-- Filtros Rápidos -->
+<div class="card p-3 mb-4">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="fw-semibold text-muted small me-2"><i class="bi bi-funnel"></i> Filtrar Status:</span>
+        <a href="{{ url_for('listar_equipamentos') }}" class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-secondary{% endif %}">Todos</a>
+        <a href="{{ url_for('listar_equipamentos', status='disponivel') }}" class="btn btn-sm {% if status_filter == 'disponivel' %}btn-success{% else %}btn-outline-success{% endif %}">Disponíveis</a>
+        <a href="{{ url_for('listar_equipamentos', status='emprestado') }}" class="btn btn-sm {% if status_filter == 'emprestado' %}btn-info text-white{% else %}btn-outline-info{% endif %}">Emprestados</a>
+        <a href="{{ url_for('listar_equipamentos', status='manutencao') }}" class="btn btn-sm {% if status_filter == 'manutencao' %}btn-danger{% else %}btn-outline-danger{% endif %}">Em Manutenção</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Patrimônio</th>
+                    <th>Tipo</th>
+                    <th>Marca / Modelo</th>
+                    <th>Status Atual</th>
+                    <th>Responsável Atual</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in equipamentos %}
+                <tr>
+                    <td><strong>{{ item.patrimonio }}</strong></td>
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            {% if item.tipo == 'Notebook' %}<i class="bi bi-laptop me-1"></i>{% endif %}
+                            {% if item.tipo == 'Monitor' %}<i class="bi bi-display me-1"></i>{% endif %}
+                            {% if item.tipo == 'Teclado' %}<i class="bi bi-keyboard me-1"></i>{% endif %}
+                            {{ item.tipo }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ item.marca_modelo }}
+                        {% if item.descricao %}
+                            <br><small class="text-muted">{{ item.descricao }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status == 'disponivel' %}
+                            <span class="badge badge-status-disponivel border border-success">Disponível</span>
+                        {% elif item.status == 'emprestado' %}
+                            <span class="badge badge-status-emprestado border border-info">Emprestado</span>
+                        {% else %}
+                            <span class="badge badge-status-manutencao border border-danger">Manutenção</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status == 'emprestado' and item.emprestimo_ativo %}
+                            <strong>{{ item.emprestimo_ativo.responsavel_nome }}</strong><br>
+                            <small class="text-muted">Desde {{ item.emprestimo_ativo.data_emprestimo.strftime('%d/%m/%Y') }}</small>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('detalhe_equipamento', id=item.id) }}" class="btn btn-outline-secondary" title="Consultar Estado">
+                                <i class="bi bi-eye"></i> Detalhes
+                            </a>
+                            {% if item.status == 'disponivel' %}
+                                <a href="{{ url_for('novo_emprestimo', equipamento_id=item.id) }}" class="btn btn-outline-primary" title="Emprestar este equipamento">
+                                    <i class="bi bi-box-arrow-right"></i> Emprestar
+                                </a>
+                            {% elif item.status == 'emprestado' and item.emprestimo_ativo %}
+                                <form action="{{ url_for('devolver_emprestimo', id=item.emprestimo_ativo.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Registrar Devolução">
+                                        <i class="bi bi-box-arrow-in-left"></i> Devolver
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        Nenhum equipamento encontrado para os filtros selecionados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
